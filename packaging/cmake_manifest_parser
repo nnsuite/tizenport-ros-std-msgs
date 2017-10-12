@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+import re
+import os
+import sys
+
+def whole_string(reg_set):
+  return set(map((lambda str: "\A{0}\Z".format(str)), reg_set))
+
+def is_valid_manifest_entry(manifest_entry):
+  blacklist = set(map(re.compile,
+                       whole_string({"/usr/lib/pkgconfig*?",
+                         "/", "/usr", "/usr/share", "/usr/lib", "/usr/include", "/usr/bin"})))
+  for blacklist_entry in blacklist:
+    if blacklist_entry.match(manifest_entry) != None:
+      return False
+  return True
+
+if __name__ == '__main__':
+  buildRoot = os.path.realpath(sys.argv[1])
+  manifest = set()
+  remaining_folders = {buildRoot}
+  while remaining_folders:
+    next_folder = remaining_folders.pop()
+    for root, dirs, files in os.walk(next_folder):
+      print(root)
+      abrv_root = root[len(buildRoot):]
+      if is_valid_manifest_entry(abrv_root):
+        manifest.add("%dir "+abrv_root)
+      for next_file in files:
+        file_path = os.path.join(abrv_root, next_file)
+        if is_valid_manifest_entry(file_path):
+          manifest.add(file_path)
+  with open("ros_install_manifest", mode="w") as manifestFile:
+    manifestFile.writelines(map(lambda str : str+"\n", manifest))
