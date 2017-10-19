@@ -4,12 +4,10 @@ Name:           ros-kinetic-std-msgs
 Version:        0.5.11
 Release:        0%{?dist}
 Summary:        ROS std_msgs package
-
 Group:          Development/Libraries
 License:        BSD
 URL:            http://www.ros.org/wiki/std_msgs
 Source0:        %{name}-%{version}.tar.gz
-Source1:        cmake_manifest_parser
 Source1001:     %{name}.manifest
 
 BuildRequires:  gcc-c++
@@ -39,7 +37,5 @@ cp %{SOURCE1001} .
 %{__ros_setup}
 %{__ros_install}
 
-python %{SOURCE1} %{buildroot}
-
-%files -f ros_install_manifest
+%files -f build/install_manifest.txt
 %manifest %{name}.manifest
